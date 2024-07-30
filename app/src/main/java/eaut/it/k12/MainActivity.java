@@ -2,6 +2,7 @@ package eaut.it.k12;
 
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationListener;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -27,10 +28,12 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     private static final int REQUEST_CODE_GPS_PERMISSION = 100;
+    private LatLng currentLocation =
+            new LatLng(20.98809878552947, 105.80033033187001);
     private GoogleMap mMap;
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
@@ -69,7 +72,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
         getCurrentLocation();
+        showLocation();
     }
+
+    @Override
+    public void onLocationChanged(@NonNull Location location) {
+        currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
+        if(mMap!=null) showLocation();
+    }
+
 
     private void getCurrentLocation() {
         FusedLocationProviderClient mFusedLocationClient =
@@ -82,11 +93,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                     @Override
                     public void onSuccess(Location location) {
                         if (location == null) return;
-                        LatLng currentLocation =
-                                new LatLng(location.getLatitude(), location.getLongitude());
-                        mMap.addMarker(new MarkerOptions().position(currentLocation).title("Marker in current location"));
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 12f));
+                        currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
                     }
                 });
+    }
+
+    private void showLocation(){
+        mMap.addMarker(new MarkerOptions().position(currentLocation).title("Current location: ("+currentLocation.latitude+","+ currentLocation.longitude+")"));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 12f));
     }
 }
