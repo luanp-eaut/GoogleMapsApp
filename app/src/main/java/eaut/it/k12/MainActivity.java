@@ -58,10 +58,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onResume();
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG,"Permission allowed");
             getCurrentLocation();
         } else {
-            Log.d(TAG,"Request permission");
             requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                     REQUEST_CODE_GPS_PERMISSION);
         }
@@ -83,13 +81,11 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .addOnSuccessListener(this, new OnSuccessListener<Location>() {
                     @Override
                     public void onSuccess(Location location) {
-                        if (location == null) {
-                            return;
-                        }
+                        if (location == null) return;
                         LatLng currentLocation =
                                 new LatLng(location.getLatitude(), location.getLongitude());
                         mMap.addMarker(new MarkerOptions().position(currentLocation).title("Marker in current location"));
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation,12f));
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 12f));
                     }
                 });
     }
